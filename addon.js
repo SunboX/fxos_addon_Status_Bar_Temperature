@@ -43,7 +43,7 @@
     // Crete a XHR to load the temperature
     var xhr = new XMLHttpRequest({
       mozAnon: true, // tells the User Agent not to pass cookies and other auth information along with the request
-      mozSystem: true // allowes to do Cross-Domain requests, not really needed here
+      mozSystem: true // allows to do Cross-Domain requests, not really needed here
     });
 
     // We want our response in JSON format
