@@ -19,7 +19,7 @@
 
   function initialize() {
 
-    // Get the system tray bar
+    // Get the status bar bar
     var statusBarEl = document.getElementById('statusbar-maximized');
 
     // If there is a old one, remove it first
@@ -37,7 +37,7 @@
     containerEl.style.lineHeight = '1.6rem';
     containerEl.textContent = '-99' + String.fromCharCode(DEG === 'c' ? 8451 : 8457);
 
-    // Append the temperature element to the system tray bar
+    // Append the temperature element to the status bar
     statusBarEl.appendChild(containerEl);
 
     // Crete a XHR to load the temperature
