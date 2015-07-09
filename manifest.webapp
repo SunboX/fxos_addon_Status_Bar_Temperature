@@ -1,6 +1,6 @@
 {
-  "name": "System Tray - Temperature",
-  "description": "Adds the current local temperature to the system tray",
+  "name": "Status Bar - Temperature",
+  "description": "Adds the current local temperature to the status bar",
   "developer": {
     "name": "André Fiedler",
     "url": "http://andrefiedler.de"
