@@ -19,5 +19,9 @@
     "90": "/icons/icon90.png",
     "120": "/icons/icon120.png"
   },
+  "permissions": {
+    "geolocation": {},
+    "systemXHR": {}
+  },
   "package_path": "package.zip"
 }
