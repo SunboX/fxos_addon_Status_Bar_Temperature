@@ -12,6 +12,11 @@
     "scripts": [
       "addon.js"
     ]
+  }, {
+    "filter": "settings.gaiamobile.org",
+    "scripts": [
+      "settings.js"
+    ]
   }],
   "icons": {
     "30": "/icons/icon30.png",
@@ -22,6 +27,5 @@
   "permissions": {
     "geolocation": {},
     "systemXHR": {}
-  },
-  "package_path": "package.zip"
+  }
 }
