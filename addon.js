@@ -28,14 +28,14 @@
     statusBarEl = document.getElementById('statusbar-maximized');
 
     // If there is a old one, remove it first
-    containerEl = document.getElementById('statusbar-temperature');
-    if (statusBarEl.contains(containerEl)) {
-      statusBarEl.removeChild(containerEl);
+    var containerEls = statusBarEl.querySelectorAll('.statusbar-temperature');
+    for (var i = 0; i < containerEls.length; i++) {
+      statusBarEl.removeChild(containerEls[i]);
     }
 
     // Build the temperature element
     containerEl = document.createElement('div');
-    containerEl.setAttribute('id', 'statusbar-temperature');
+    containerEl.classList.add('statusbar-temperature');
     containerEl.style.order = '-2';
     containerEl.style.fontSize = '1.5rem';
     containerEl.style.fontWeight = '400';
@@ -62,6 +62,13 @@
 
         // If it's not already there, append the temperature element to the status bar
         if (!statusBarEl.contains(containerEl)) {
+          
+          // If there is a old one, remove it first
+          var containerEls = statusBarEl.querySelectorAll('.statusbar-temperature');
+          for (var i = 0; i < containerEls.length; i++) {
+            statusBarEl.removeChild(containerEls[i]);
+          }
+          
           statusBarEl.appendChild(containerEl);
         }
       }
@@ -72,6 +79,24 @@
 
     // Update all 10 Minutes, even if position did not change
     setInterval(queryCurrentTemp, UPDATE_INTERVAL);
+    
+    var settings = window.navigator.mozSettings;
+    
+    // Get degree format
+    var req = settings.createLock().get('statusbar-temperature.degree-format');
+    
+    req.onsuccess = function bt_EnabledSuccess() {
+      currentDegreeFormat = req.result['statusbar-temperature.degree-format'];
+      queryCurrentTemp();
+    };
+    
+    // Listen to changes on the degree format setting
+    settings.addObserver('statusbar-temperature.degree-format', function (event) {
+      if (currentDegreeFormat !== event.settingValue) {
+        currentDegreeFormat = event.settingValue;
+        queryCurrentTemp();
+      }
+    });
   }
 
   function startWatching() {
@@ -125,29 +150,15 @@
   }
 
   function queryCurrentTemp() {
-    var settings = window.navigator.mozSettings;
+    xhr.abort();
     
-    // Get degree format
-    var req = settings.createLock().get('statusbar-temperature.degree-format');
-    
-    req.onsuccess = function bt_EnabledSuccess() {
-      currentDegreeFormat = req.result['statusbar-temperature.degree-format'];
-      
-      // Forming the query for Yahoo's weather forecasting API with YQL
-      // http://developer.yahoo.com/weather/
-      var wsql = 'select * from weather.forecast where woeid in (SELECT woeid FROM geo.placefinder WHERE text="' + lat + ',' + lng + '" and gflags="R") and u="' + currentDegreeFormat + '"',
-          weatherYql = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent(wsql) + '&format=json';
+    // Forming the query for Yahoo's weather forecasting API with YQL
+    // http://developer.yahoo.com/weather/
+    var wsql = 'select * from weather.forecast where woeid in (SELECT woeid FROM geo.placefinder WHERE text="' + lat + ',' + lng + '" and gflags="R") and u="' + currentDegreeFormat + '"',
+        weatherYql = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent(wsql) + '&format=json';
 
-      xhr.open('GET', weatherYql, true);
-      xhr.send();
-    };
-    
-    req.onerror = function bt_EnabledOnerror() {
-      // Can not get degree format from settings
-      settings.createLock().set({
-        'statusbar-temperature.degree-format': 'c'
-      });
-    };
+    xhr.open('GET', weatherYql, true);
+    xhr.send();
   }
 
   function notify(title, body) {

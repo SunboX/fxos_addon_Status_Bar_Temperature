@@ -13,10 +13,7 @@
     window.addEventListener('DOMContentLoaded', initialize);
   }
 
-  function initialize() { 
-
-    // Get the addon details page
-    var detailsEl = document.getElementById('addon-details');
+  function initialize() {
 
     var observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
@@ -106,10 +103,22 @@
         }
       });
     });
+    
+    var waitForAddonDetails = setInterval(function () {
+      // Get the addon details page
+      var detailsEl = document.getElementById('addon-details');
+      
+      if (!detailsEl) {
+        return;
+      }
+      
+      clearInterval(waitForAddonDetails);
 
-    observer.observe(detailsEl, {
-      attributes: true
-    });
+      observer.observe(detailsEl, {
+        attributes: true
+      });
+      
+    }, 500);
 
   }
 
