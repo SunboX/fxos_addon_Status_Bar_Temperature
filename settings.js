@@ -27,7 +27,7 @@
             customSettings = null;
           }
 
-          if(addonDetailsHeader.textContent === 'Status Bar - Temperature') {
+          if(addonDetailsHeader.textContent === 'Status Bar Temperature') {
             
             var settings = window.navigator.mozSettings;
 
