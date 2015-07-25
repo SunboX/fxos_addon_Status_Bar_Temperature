@@ -1,8 +1,9 @@
 (function () {
   var APPID = 'O4GC0pHV34H398TVVDX165LTYGF38qS3qOgzc2oc0ftXHD2yujGGg1e4fNI.2bi_czY1FA--'; // Your Yahoo Application ID
-  var DEG = 'c'; // c for celsius, f for fahrenheit
   var UPDATE_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
+  var currentDegreeFormat = 'c';
+  
   // Show geolocation exceptions only once
   var notifiedAboutException = false;
 
@@ -39,7 +40,7 @@
     containerEl.style.fontSize = '1.5rem';
     containerEl.style.fontWeight = '400';
     containerEl.style.lineHeight = '1.6rem';
-    containerEl.textContent = '-99' + String.fromCharCode(DEG === 'c' ? 8451 : 8457);
+    containerEl.textContent = '-99' + String.fromCharCode(currentDegreeFormat === 'c' ? 8451 : 8457);
 
     // Crete a XHR to load the temperature
     xhr = new XMLHttpRequest({
@@ -57,7 +58,7 @@
         // Update the temperature element
         var item = xhr.response.query.results.channel.item.condition;
 
-        containerEl.textContent = Math.round(parseFloat(item.temp)) + String.fromCharCode(DEG === 'c' ? 8451 : 8457);
+        containerEl.textContent = Math.round(parseFloat(item.temp)) + String.fromCharCode(currentDegreeFormat === 'c' ? 8451 : 8457);
 
         // If it's not already there, append the temperature element to the status bar
         if (!statusBarEl.contains(containerEl)) {
@@ -124,13 +125,29 @@
   }
 
   function queryCurrentTemp() {
-    // Forming the query for Yahoo's weather forecasting API with YQL
-    // http://developer.yahoo.com/weather/
-    var wsql = 'select * from weather.forecast where woeid in (SELECT woeid FROM geo.placefinder WHERE text="' + lat + ',' + lng + '" and gflags="R") and u="' + DEG + '"',
-        weatherYql = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent(wsql) + '&format=json';
+    var settings = window.navigator.mozSettings;
+    
+    // Get degree format
+    var req = settings.createLock().get('statusbar-temperature.degree-format');
+    
+    req.onsuccess = function bt_EnabledSuccess() {
+      currentDegreeFormat = req.result['statusbar-temperature.degree-format'];
+      
+      // Forming the query for Yahoo's weather forecasting API with YQL
+      // http://developer.yahoo.com/weather/
+      var wsql = 'select * from weather.forecast where woeid in (SELECT woeid FROM geo.placefinder WHERE text="' + lat + ',' + lng + '" and gflags="R") and u="' + currentDegreeFormat + '"',
+          weatherYql = 'https://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent(wsql) + '&format=json';
 
-    xhr.open('GET', weatherYql, true);
-    xhr.send();
+      xhr.open('GET', weatherYql, true);
+      xhr.send();
+    };
+    
+    req.onerror = function bt_EnabledOnerror() {
+      // Can not get degree format from settings
+      settings.createLock().set({
+        'statusbar-temperature.degree-format': 'c'
+      });
+    };
   }
 
   function notify(title, body) {

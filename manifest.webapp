@@ -25,6 +25,7 @@
     "120": "/icons/icon120.png"
   },
   "permissions": {
+    "settings": { "access": "readwrite" },
     "geolocation": {},
     "systemXHR": {}
   }

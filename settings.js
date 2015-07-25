@@ -31,6 +31,8 @@
           }
 
           if(addonDetailsHeader.textContent === 'Status Bar - Temperature') {
+            
+            var settings = window.navigator.mozSettings;
 
             customSettings = document.createElement('div');
             customSettings.classList.add('status-bar-temp');
@@ -44,15 +46,34 @@
             header.appendChild(h2);
             customSettings.appendChild(header);
 
-            //TODO: Add settings panel
-
             var ul = document.createElement('ul');
             var li = document.createElement('li');
             var p = document.createElement('p');
-            p.classList.add('addon-paragraph');
-            p.textContent = 'All Status Bar Temperature Settings will go here.';
+            p.textContent = 'Temperature Format';
+            
+            var span = document.createElement('span');
+            span.classList.add('button');
+            span.classList.add('icon');
+            span.classList.add('icon-dialog');
+            
+            var select = document.createElement('select');
+            select.classList.add('temperature-format');
+            
+            var optionC = document.createElement('option');
+            optionC.value = 'c';
+            optionC.textContent = String.fromCharCode(8451);
+            
+            var optionF = document.createElement('option');
+            optionF.value = 'f';
+            optionF.textContent = String.fromCharCode(8457);
 
             li.appendChild(p);
+            
+            select.appendChild(optionC);
+            select.appendChild(optionF);
+            span.appendChild(select);
+            li.appendChild(span);
+            
             ul.appendChild(li);
             customSettings.appendChild(ul);
 
@@ -60,6 +81,27 @@
             var filterHeader = addonDetailsBody.querySelector('header');
 
             addonDetailsBody.insertBefore(customSettings, filterHeader);
+            
+            select.addEventListener('change', function () {
+              settings.createLock().set({
+                'statusbar-temperature.degree-format': select.value
+              });
+            });
+
+            // Get current degree format
+            var req = settings.createLock().get('statusbar-temperature.degree-format');
+
+            req.onsuccess = function bt_EnabledSuccess() {
+              var deg = req.result['statusbar-temperature.degree-format'];
+              select.value = deg;
+            };
+
+            req.onerror = function bt_EnabledOnerror() {
+              // Can not get degree format from settings
+              settings.createLock().set({
+                'statusbar-temperature.degree-format': 'c'
+              });
+            };
           }
         }
       });
