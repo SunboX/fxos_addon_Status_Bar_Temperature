@@ -1,8 +1,10 @@
 (function () {
   var APPID = 'O4GC0pHV34H398TVVDX165LTYGF38qS3qOgzc2oc0ftXHD2yujGGg1e4fNI.2bi_czY1FA--'; // Your Yahoo Application ID
-  var UPDATE_INTERVAL = 10 * 60 * 1000; // 10 minutes
-
+  
+  var currentUpdateInterval = 10 * 60 * 1000; // 10 minutes
   var currentDegreeFormat = 'c';
+  var currentUpdateIntervalInterval;
+  var watchId;
   
   // Show geolocation exceptions only once
   var notifiedAboutException = false;
@@ -20,7 +22,7 @@
     window.addEventListener('DOMContentLoaded', initialize);
   }
 
-  var statusBarEl, containerEl, xhr, didRunFirst = false, watchId, lat, lng;
+  var statusBarEl, containerEl, xhr, didRunFirst = false, lat, lng;
 
   function initialize() {
 
@@ -74,19 +76,16 @@
       }
     };
 
-    // Watch our geo position and update the temperature if it changes
-    startWatching();
-
     // Update all 10 Minutes, even if position did not change
-    setInterval(queryCurrentTemp, UPDATE_INTERVAL);
+    currentUpdateIntervalInterval = setInterval(queryCurrentTemp, currentUpdateInterval);
     
     var settings = window.navigator.mozSettings;
     
     // Get degree format
-    var req = settings.createLock().get('statusbar-temperature.degree-format');
+    var reqDegreeFormat = settings.createLock().get('statusbar-temperature.degree-format');
     
-    req.onsuccess = function bt_EnabledSuccess() {
-      currentDegreeFormat = req.result['statusbar-temperature.degree-format'];
+    reqDegreeFormat.onsuccess = function () {
+      currentDegreeFormat = reqDegreeFormat.result['statusbar-temperature.degree-format'];
       queryCurrentTemp();
     };
     
@@ -95,6 +94,36 @@
       if (currentDegreeFormat !== event.settingValue) {
         currentDegreeFormat = event.settingValue;
         queryCurrentTemp();
+      }
+    });
+    
+    // Get update interval
+    var reqUpdateInterval = settings.createLock().get('statusbar-temperature.update-interval');
+    
+    reqUpdateInterval.onsuccess = function () {
+      currentUpdateInterval = reqUpdateInterval.result['statusbar-temperature.update-interval'] * 60 * 1000;
+
+      // Watch our geo position and update the temperature if it changes
+      startWatching();
+    };
+    
+    reqUpdateInterval.onerror = function () {
+      // Watch our geo position and update the temperature if it changes
+      startWatching();
+    };
+    
+    // Listen to changes on the degree format setting
+    settings.addObserver('statusbar-temperature.update-interval', function (event) {
+      var newUpdateInterval = event.settingValue * 60 * 1000;
+      if (currentUpdateInterval !== newUpdateInterval) {
+        
+        currentUpdateInterval = newUpdateInterval;
+        
+        clearInterval(currentUpdateIntervalInterval);
+        currentUpdateIntervalInterval = setInterval(queryCurrentTemp, currentUpdateInterval);
+        
+        navigator.geolocation.clearWatch(watchId);
+        startWatching();
       }
     });
   }
@@ -145,7 +174,7 @@
     }, {
       enableHighAccuracy: false,
       timeout: 10 * 1000, // time out after 10 seconds
-      maximumAge: UPDATE_INTERVAL
+      maximumAge: currentUpdateInterval
     });
   }
 

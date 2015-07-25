@@ -44,17 +44,18 @@
             customSettings.appendChild(header);
 
             var ul = document.createElement('ul');
-            var li = document.createElement('li');
-            var p = document.createElement('p');
-            p.textContent = 'Temperature Format';
             
-            var span = document.createElement('span');
-            span.classList.add('button');
-            span.classList.add('icon');
-            span.classList.add('icon-dialog');
+            var liTemperatureFormat = document.createElement('li');
+            var pTemperatureFormat = document.createElement('p');
+            pTemperatureFormat.textContent = 'Temperature Format';
             
-            var select = document.createElement('select');
-            select.classList.add('temperature-format');
+            var spanTemperatureFormat = document.createElement('span');
+            spanTemperatureFormat.classList.add('button');
+            spanTemperatureFormat.classList.add('icon');
+            spanTemperatureFormat.classList.add('icon-dialog');
+            
+            var selectTemperatureFormat = document.createElement('select');
+            selectTemperatureFormat.classList.add('temperature-format');
             
             var optionC = document.createElement('option');
             optionC.value = 'c';
@@ -64,14 +65,69 @@
             optionF.value = 'f';
             optionF.textContent = String.fromCharCode(8457);
 
-            li.appendChild(p);
+            liTemperatureFormat.appendChild(pTemperatureFormat);
             
-            select.appendChild(optionC);
-            select.appendChild(optionF);
-            span.appendChild(select);
-            li.appendChild(span);
+            selectTemperatureFormat.appendChild(optionC);
+            selectTemperatureFormat.appendChild(optionF);
+            spanTemperatureFormat.appendChild(selectTemperatureFormat);
+            liTemperatureFormat.appendChild(spanTemperatureFormat);
             
-            ul.appendChild(li);
+            ul.appendChild(liTemperatureFormat);
+
+            var liUpdateInterval = document.createElement('li');
+            var pUpdateInterval = document.createElement('p');
+            pUpdateInterval.textContent = 'Update Interval';
+            
+            var spanUpdateInterval = document.createElement('span');
+            spanUpdateInterval.classList.add('button');
+            spanUpdateInterval.classList.add('icon');
+            spanUpdateInterval.classList.add('icon-dialog');
+            
+            var selectUpdateInterval = document.createElement('select');
+            selectUpdateInterval.classList.add('temperature-format');
+            
+            var option5m = document.createElement('option');
+            option5m.value = '5';
+            option5m.textContent = '5 Minutes';
+            
+            var option10m = document.createElement('option');
+            option10m.value = '10';
+            option10m.textContent = '10 Minutes';
+            
+            var option15m = document.createElement('option');
+            option15m.value = '15';
+            option15m.textContent = '15 Minutes';
+            
+            var option30m = document.createElement('option');
+            option30m.value = '30';
+            option30m.textContent = '30 Minutes';
+            
+            var option1h = document.createElement('option');
+            option1h.value = '60';
+            option1h.textContent = '1 Hour';
+            
+            var option12h = document.createElement('option');
+            option12h.value = '720';
+            option12h.textContent = '12 Hours';
+            
+            var option1d = document.createElement('option');
+            option1d.value = '1440';
+            option1d.textContent = '1 Day';
+
+            liUpdateInterval.appendChild(pUpdateInterval);
+            
+            selectUpdateInterval.appendChild(option5m);
+            selectUpdateInterval.appendChild(option10m);
+            selectUpdateInterval.appendChild(option15m);
+            selectUpdateInterval.appendChild(option30m);
+            selectUpdateInterval.appendChild(option1h);
+            selectUpdateInterval.appendChild(option12h);
+            selectUpdateInterval.appendChild(option1d);
+            spanUpdateInterval.appendChild(selectUpdateInterval);
+            liUpdateInterval.appendChild(spanUpdateInterval);
+            
+            ul.appendChild(liUpdateInterval);
+            
             customSettings.appendChild(ul);
 
             var addonDetailsBody = mutation.target.querySelector('.addon-details-body');
@@ -79,25 +135,48 @@
 
             addonDetailsBody.insertBefore(customSettings, filterHeader);
             
-            select.addEventListener('change', function () {
+            selectTemperatureFormat.addEventListener('change', function () {
               settings.createLock().set({
-                'statusbar-temperature.degree-format': select.value
+                'statusbar-temperature.degree-format': selectTemperatureFormat.value
               });
             });
 
             // Get current degree format
-            var req = settings.createLock().get('statusbar-temperature.degree-format');
+            var reqTemperatureFormat = settings.createLock().get('statusbar-temperature.degree-format');
 
-            req.onsuccess = function bt_EnabledSuccess() {
-              var deg = req.result['statusbar-temperature.degree-format'];
-              select.value = deg;
+            reqTemperatureFormat.onsuccess = function () {
+              var deg = reqTemperatureFormat.result['statusbar-temperature.degree-format'];
+              selectTemperatureFormat.value = deg;
             };
 
-            req.onerror = function bt_EnabledOnerror() {
+            reqTemperatureFormat.onerror = function () {
               // Can not get degree format from settings
               settings.createLock().set({
                 'statusbar-temperature.degree-format': 'c'
               });
+              selectTemperatureFormat.value = 'c';
+            };
+            
+            selectUpdateInterval.addEventListener('change', function () {
+              settings.createLock().set({
+                'statusbar-temperature.update-interval': parseInt(selectUpdateInterval.value, 10)
+              });
+            });
+
+            // Get current update interval
+            var reqUpdateInterval = settings.createLock().get('statusbar-temperature.update-interval');
+
+            reqUpdateInterval.onsuccess = function () {
+              var interval = reqUpdateInterval.result['statusbar-temperature.update-interval'];
+              selectUpdateInterval.value = interval;
+            };
+
+            reqUpdateInterval.onerror = function () {
+              // Can not get update interval from settings
+              settings.createLock().set({
+                'statusbar-temperature.update-interval': 10
+              });
+              selectUpdateInterval.value = 10;
             };
           }
         }
