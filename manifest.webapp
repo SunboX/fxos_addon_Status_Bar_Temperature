@@ -33,5 +33,6 @@
     "settings": { "access": "readwrite" },
     "geolocation": {},
     "systemXHR": {}
-  }
+  },
+  "package_path": "package.zip"
 }
