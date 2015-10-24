@@ -1,4 +1,4 @@
-(function() {
+(function(window) {
     var APPID = 'O4GC0pHV34H398TVVDX165LTYGF38qS3qOgzc2oc0ftXHD2yujGGg1e4fNI.2bi_czY1FA--'; // Your Yahoo Application ID
 
     var currentUpdateInterval = 10 * 60 * 1000; // 10 minutes
@@ -226,4 +226,4 @@
         // want to be respectful there is no need to bother them any more.
     }
 
-}());
+})(window);
