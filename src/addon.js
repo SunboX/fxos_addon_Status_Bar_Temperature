@@ -28,7 +28,7 @@
     function initialize() {
 
         // Get the status bar bar
-        statusBarEl = document.getElementById('statusbar-maximized');
+        statusBarEl = document.getElementById('statusbar-maximized') || document.getElementById('statusbar-icons');
 
         // If there is a old one, remove it first
         var containerEls = statusBarEl.querySelectorAll('.statusbar-temperature');
@@ -39,7 +39,7 @@
         // Build the temperature element
         containerEl = document.createElement('div');
         containerEl.classList.add('statusbar-temperature');
-        containerEl.style.order = '-2';
+        containerEl.style.order = '1';
         containerEl.style.fontSize = '1.5rem';
         containerEl.style.fontWeight = '400';
         containerEl.style.lineHeight = '1.6rem';
